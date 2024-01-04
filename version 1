@@ -1,0 +1,33 @@
+function main(workbook: ExcelScript.Workbook) {
+	const sheet = workbook.getActiveWorksheet();
+	sheet.getUsedRange().clear();
+	const range = sheet.getRange("A1:B2");
+	range.setValues([ ["", "Email Instructors"], ["Date" , "(Items)"] ]);
+	range.setNumberFormat("ddd m/dd");
+
+	let currentDate = new Date(2024, 0, 1);
+	let rowIndex = 3;
+	let weekNumber = 1;
+	const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+	while (currentDate.getFullYear() === 2024) {
+		if (currentDate.getDate() === 1 && currentDate.getMonth() !== 0) { // If it's the first day of the month (and not January)
+			const totalCell = sheet.getCell(rowIndex - 1, 0);
+			totalCell.setValue(`${monthNames[currentDate.getMonth() - 1]} Total`);
+			totalCell.getFormat().getFill().setColor("Grey");
+			rowIndex++;
+		}
+		const cell = sheet.getCell(rowIndex - 1, 0);
+		cell.setFormula(`=DATE(${currentDate.getFullYear()}, ${currentDate.getMonth() + 1}, ${currentDate.getDate()})`);
+		cell.setNumberFormat("ddd m/dd");
+		currentDate.setDate(currentDate.getDate() + 1);
+		rowIndex++;
+		if (currentDate.getDay() === 0) { // 0 is Sunday
+			const totalCell = sheet.getCell(rowIndex - 1, 0);
+			totalCell.setValue(`Week ${weekNumber} Total`);
+			totalCell.getFormat().getFill().setColor("Cyan");
+			weekNumber++;
+			rowIndex++;
+		}
+	}
+
+}
